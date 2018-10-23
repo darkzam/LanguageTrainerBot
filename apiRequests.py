@@ -31,19 +31,3 @@ class TextService:
            
         else:
             print("The json is empty.")
-
-"""          
-obTextService = TextService('en')
-
-obTextService.getJsonByKeyword('chess')
-
-url = obTextService.getUrlNext()
-
-#create Text object from url
-obText = Text(url)
-
-#load Text object with article from source url
-obText.loadArticle()
-
-print(obText.getPragraph(300))
-"""

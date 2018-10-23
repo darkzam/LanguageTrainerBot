@@ -65,4 +65,52 @@ async def next(ctx):
 	else:
 		await client.say('Text not loaded.')
 
+@client.command(pass_context=True)
+@commands.has_any_role('Party Master')
+async def mute(ctx, member: discord.Member = None):
+	
+	if member is None:
+
+	server = ctx.message.server
+	await client.say("Welcome to the: " + server.name)
+
+	generalChannel = discord.utils.get(server.channels, name='General')
+	testChannel = discord.utils.get(server.channels, name= 'Test')
+
+	mutedRole = discord.utils.get(server.roles, name='muted')
+
+	membersLocal = []
+
+	if generalChannel is not None and testChannel is not None:
+		members = generalChannel.voice_members
+		
+		if len(members) > 0:
+			for member in members:
+				membersLocal.append(member)
+			
+			for member in membersLocal:
+
+				for role in member.roles:
+					if role is mutedRole:
+						break
+					else:
+						await client.add_roles(member, mutedRole)
+
+				await client.move_member(member, testChannel)
+				await client.move_member(member, generalChannel)			
+	else:
+		await client.say(member.name)			
+
+@client.command(pass_context=True)
+@commands.has_any_role('Party Master')
+async def mary(ctx):
+	mary = ['Angelito de Fresa', 'Strawberry Angel', 
+				'Love Nugget', 'Platinum Nugget',
+				 'Mary Bear', 'Brujita', 'Amorcito', 'Ariel',
+				 'Bella']
+				 
+	for names in mary:
+		await client.say("Welcome to the: " + server.name)
+
 client.run(Token)
+
