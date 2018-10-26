@@ -109,6 +109,7 @@ async def mute(ctx, member: discord.Member = None):
 partyMembers = [] ## keeps track of all the members of the on running party round
 tempTurns = []
 roundCounter = 1
+turnCounter = 0
 memberTurn = None
 
 @client.command(pass_context=True)
@@ -140,7 +141,7 @@ async def create(ctx):
 @client.command(pass_context=True)
 @commands.has_any_role('Party Master')
 async def turn(ctx):
-	global tempTurns, memberTurn, roundCounter
+	global tempTurns, memberTurn, roundCounter, turnCounter
 
 	if len(partyMembers) > 0:
 		if len(tempTurns) > 0:
@@ -152,7 +153,11 @@ async def turn(ctx):
 			
 			if len(tempTurns) == 0:
 				await client.say('Last turn of Round ' + str(roundCounter) )
-			await client.say( memberTurn.name + " It's your turn.")
+
+			turnCounter += 1
+
+			await client.say('<@'+ memberTurn.id + "> It's your turn.")
+			
 		else:
 			await client.say('Round ' + str(roundCounter) + ' has finished!' )
 			roundCounter += 1
@@ -163,6 +168,17 @@ async def turn(ctx):
 
 @client.command(pass_context=True)
 @commands.has_any_role('Party Master')
+async def end(ctx):
+	global tempTurns, memberTurn, roundCounter
+
+	await client.say('Good job everyone!\nParty Stats\nTotal Rounds: ' + str(roundCounter) + 'Total Turns: ' + str(turnCounter))
+
+	partyMembers = [] 
+	tempTurns = []
+	roundCounter = 1
+	memberTurn = None
+
+@client.command(pass_context=True)
 async def nickname(ctx):
 
 	mary = ['Angelito de Fresa', 'Strawberry Angel', 'Love Nugget', 'Platinum Nugget','Mary Bear', 'Brujita', 'Amorcito', 'Ariel','Bella','Mury','Pastelito','Caramelito','Bombon','Sweetheart','Honey','Mini Mary', 'Shorty','Maryrose','Boom boom', 'Zammy', 'Zamuel','Honey','Princess', 'Zamircito','Angelpac', 'amorcito', 'cielito']
@@ -172,10 +188,9 @@ async def nickname(ctx):
 	await client.say('Nickname of the day: ' + mary[number])
 
 @client.command(pass_context=True)
-@commands.has_any_role('Party Master')
 async def cute(ctx):
 	
-	cute = ['Zamirnarvaezpham@gmail.com','Ihavethebestgirlfriendever@yesthatsme.Mury',' Your mommy is the best cook ever. She made the yummiest love nugget','1. Be the cutest thing ever 2. Have the sweetest attitude 3. Spoil your girl with love 4. Stay handsome as hell 5. Name yourself Zamir Narváez',"I'll be the first and last one to love you.", 'Te amo mucho, my one and only','I love you to the moon and back', 'Te amo tanto.']
+	cute = ["I'll be the first and the last one to love you",'Zamirnarvaezpham@gmail.com','Ihavethebestgirlfriendever@yesthatsme.Mury',' Your mommy is the best cook ever. She made the yummiest love nugget','1. Be the cutest thing ever 2. Have the sweetest attitude 3. Spoil your girl with love 4. Stay handsome as hell 5. Name yourself Zamir Narváez',"I'll be the first and last one to love you.", 'Te amo mucho, my one and only','I love you to the moon and back', 'Te amo tanto.','A lot of the stuff you want, I want it too' ]
 	
 	number = random.randint(0,len(cute)-1)
 	
