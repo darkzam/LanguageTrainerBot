@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 from clsText import Text
 from apiRequests import TextService
+from clsSesionLectura import SesionLectura
 import random
 
 Token = 'NDc5NzE1NTQxMzg1MzQ3MTAy.Dlyb2A.ALzfw-NYt-nx5rQT3EcwZhZ66Wc' 
@@ -112,11 +113,13 @@ roundCounter = 1
 turnCounter = 0
 memberTurn = None
 
+sesion = None
+
 @client.command(pass_context=True)
 @commands.has_any_role('Party Master')
 async def create(ctx):
-	global partyMembers
-	
+	global sesion
+
 	server = ctx.message.server
 	voiceChannel = discord.utils.get(server.channels, name='General')
 
@@ -126,11 +129,11 @@ async def create(ctx):
 
 		if members is not None and len(members) > 0:
 			
-			for member in members:
-				partyMembers.append(member) ##appends at the last element in the list
-				tempTurns.append(member)
+			sesion = SesionLectura(members)
 			
-			await client.say('Round ' + str(roundCounter) + ' starting ')
+			message = sesion.start()
+
+			await client.say(message)
 
 			#to-do maybe apply role to author of message
 			#run background task to keep watch over members that join, and add them to the party
@@ -141,30 +144,20 @@ async def create(ctx):
 @client.command(pass_context=True)
 @commands.has_any_role('Party Master')
 async def turn(ctx):
-	global tempTurns, memberTurn, roundCounter, turnCounter
+	global sesion
 
-	if len(partyMembers) > 0:
-		if len(tempTurns) > 0:
-			
-			if len(tempTurns) == len(partyMembers):
-				await client.say( 'Round ' + str(roundCounter) + ' starting!')
-			
-			memberTurn = tempTurns.pop(0)
-			
-			if len(tempTurns) == 0:
-				await client.say('Last turn of Round ' + str(roundCounter) )
+	if sesion is None:
+		await client.say("There's not an ongoing Sesion de Lectura.")
+		return
 
-			turnCounter += 1
+	message = sesion.nextTurn()
 
-			await client.say('<@'+ memberTurn.id + "> It's your turn.")
-			
-		else:
-			await client.say('Round ' + str(roundCounter) + ' has finished!' )
-			roundCounter += 1
-			for member in partyMembers:
-				tempTurns.append(member)
-	else:
-		await client.say("Party has not started.")
+	##print(sesion.tempTurns)
+
+	if message != "":
+		await client.say( message)
+	
+	 ##it must return the member whose turn currently is active
 
 @client.command(pass_context=True)
 @commands.has_any_role('Party Master')
