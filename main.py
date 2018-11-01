@@ -5,6 +5,7 @@ from clsText import Text
 from apiRequests import TextService
 from clsSesionLectura import SesionLectura
 import random
+import json
 
 Token = 'NDc5NzE1NTQxMzg1MzQ3MTAy.Dlyb2A.ALzfw-NYt-nx5rQT3EcwZhZ66Wc' 
 
@@ -25,10 +26,15 @@ async def clear(ctx, amount=100):
 	await client.say('messages deleted')
 
 obTextService = None
+sesion = None
 
 @client.command(pass_context=True)
 async def paragraph(ctx, language, keyword=''):
 	global obTextService
+
+	if sesion is None:
+		await client.say("There's not an ongoing Sesion de Lectura.")
+
 	channel = ctx.message.channel
 
 	obTextService = TextService(language)
@@ -46,6 +52,7 @@ async def paragraph(ctx, language, keyword=''):
 		await client.say('Paragraph could not be found.')
 	else:
 		await client.say(txt)
+		sesion.addParagraph
 	
 
 @client.command(pass_context=True)
@@ -107,14 +114,6 @@ async def mute(ctx, member: discord.Member = None):
 	else:
 		await client.say(member.name)
 
-partyMembers = [] ## keeps track of all the members of the on running party round
-tempTurns = []
-roundCounter = 1
-turnCounter = 0
-memberTurn = None
-
-sesion = None
-
 @client.command(pass_context=True)
 @commands.has_any_role('Party Master')
 async def create(ctx):
@@ -162,14 +161,48 @@ async def turn(ctx):
 @client.command(pass_context=True)
 @commands.has_any_role('Party Master')
 async def end(ctx):
-	global tempTurns, memberTurn, roundCounter
+	global sesion
 
-	await client.say('Good job everyone!\nParty Stats\nTotal Rounds: ' + str(roundCounter) + 'Total Turns: ' + str(turnCounter))
+	await client.say('Good job everyone!\nParty Stats\nTotal Rounds: ' + str(sesion.roundCounter) + ' Total Turns: ' + str(sesion.turnCounter))
 
-	partyMembers = [] 
-	tempTurns = []
-	roundCounter = 1
-	memberTurn = None
+	### MVP of the Sesion, ranking etc, leveling system
+
+	sesion = None
+
+@client.command(pass_context=True)
+@commands.has_any_role('Party Master')
+async def mistakes(ctx, *args):
+	global sesion
+	##two options
+	##1.Get arguments in a single string and then handle it
+	##2.Get arguments already separated in the *args list
+
+	if sesion is None:
+		await client.say("There's not an ongoing Sesion de Lectura.")
+		return
+
+
+	print(sesion.getJson())
+
+	json_data = json.dumps(sesion.getJson())
+
+	print(json_data)
+
+	##get current turn member
+	
+	message = ctx.message
+
+	##get arguments from the message
+	## create object that links this sesion member, article and mistakes
+	## sesion class generate json object with all the information.
+	## generate final json object
+
+
+"""
+{['sesion': ]
+ []}
+
+"""
 
 @client.command(pass_context=True)
 async def nickname(ctx):

@@ -1,10 +1,11 @@
 
-import discord 
+import discord
+import datetime
 
 class SesionLectura:
 
     def __init__(self, members):
-        
+        self.id = 0
         self.partyMembers = []
         self.tempTurns = []
 
@@ -60,3 +61,24 @@ class SesionLectura:
             message = "Party has not started."
 
         return message
+    
+    def getJson(self):
+
+        dataSesion = {}
+        dataSesion['id'] = 0
+        dataSesion['totalTurns'] = self.turnCounter
+        dataSesion['totalRounds'] = self.roundCounter
+
+        dataPartyMembers = []
+
+        for member in self.partyMembers:
+            dataMember = {}
+            dataMember['id'] = member.id
+            dataMember['username'] = member.name
+           ## dataMember['created_at'] = datetime.datetime.strtime("%y-%m-%d-%H-%M")
+            dataPartyMembers.append(dataMember)
+        
+        dataSesion['partyMembers'] = dataPartyMembers
+
+
+        return dataPartyMembers
