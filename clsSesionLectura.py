@@ -15,7 +15,10 @@ class SesionLectura:
         
         self.roundCounter = 0
         self.turnCounter = 0
-        self.turnMember = None
+
+        self.turnMember = None ##Current Turn's user
+        self.paragraph = "" ##Current Article
+        self.mistakes = [] ##List of turn's mistake objects
 
     def start(self):
 
@@ -80,5 +83,38 @@ class SesionLectura:
         
         dataSesion['partyMembers'] = dataPartyMembers
 
+        """
+        dataMistakes = {}
+        dataMistakes['memberId'] = 
+        dataMistakes['article'] =
+        dataMistakes['mistakes'] = 
+        """
+        return dataSesion
 
-        return dataPartyMembers
+    def addMistakes(self, mistakes):
+
+        if self.paragraph == "":
+            return "There's not a paragraph loaded."
+        
+        mistakeObject = {}
+        mistakeObject['memberId'] = self.turnMember.id
+        mistakeObject['paragraph'] = self.paragraph
+        mistakeObject['mistakes'] = mistakes ## where mistakes is a list of strings
+        mistakeObject['turn'] = self.turnCounter
+        mistakeObject['round'] = self.roundCounter
+        mistakeObject['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        self.mistakes.append(mistakeObject)
+
+        return "success"
+
+    def getMistakes(self, memberId):
+
+        mistakesByUser = []
+
+        for mistake in self.mistakes:
+            if mistake['memberId'] == memberId:
+                mistakesByUser.append(mistake)
+        
+        return mistakesByUser
+        

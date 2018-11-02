@@ -5,7 +5,6 @@ from clsText import Text
 from apiRequests import TextService
 from clsSesionLectura import SesionLectura
 import random
-import json
 
 Token = 'NDc5NzE1NTQxMzg1MzQ3MTAy.Dlyb2A.ALzfw-NYt-nx5rQT3EcwZhZ66Wc' 
 
@@ -30,7 +29,7 @@ sesion = None
 
 @client.command(pass_context=True)
 async def paragraph(ctx, language, keyword=''):
-	global obTextService
+	global obTextService, sesion
 
 	if sesion is None:
 		await client.say("There's not an ongoing Sesion de Lectura.")
@@ -51,13 +50,12 @@ async def paragraph(ctx, language, keyword=''):
 	if txt == '':
 		await client.say('Paragraph could not be found.')
 	else:
+		sesion.paragraph = txt
 		await client.say(txt)
-		sesion.addParagraph
-	
-
+		
 @client.command(pass_context=True)
 async def next(ctx):
-	global obTextService
+	global obTextService, sesion
 	
 	if obTextService:
 		url = obTextService.getUrlNext()
@@ -69,6 +67,7 @@ async def next(ctx):
 		if txt == '':
 			await client.say('Paragraph could not be found.')
 		else:
+			sesion.paragraph = txt
 			await client.say(txt)
 
 	else:
@@ -181,28 +180,50 @@ async def mistakes(ctx, *args):
 		await client.say("There's not an ongoing Sesion de Lectura.")
 		return
 
-
-	print(sesion.getJson())
-
-	json_data = json.dumps(sesion.getJson())
-
-	print(json_data)
-
-	##get current turn member
-	
-	message = ctx.message
+	sesion.addMistakes(args)
 
 	##get arguments from the message
 	## create object that links this sesion member, article and mistakes
 	## sesion class generate json object with all the information.
 	## generate final json object
 
+@client.command(pass_context=True)
+@commands.has_any_role('Party Master')
+async def stats(ctx):
+	global sesion
 
-"""
-{['sesion': ]
- []}
+	if sesion is None:
+		await client.say("There's not an ongoing Sesion de Lectura.")
+		return
 
-"""
+	member = ctx.message.author
+
+	mistakes = sesion.getMistakes(member.id)
+
+	##recover mistakes from database
+	description = ""
+
+	if len(mistakes)>0:
+
+		for mistake in mistakes:
+			description = description + "Paragraph:\n\n" + mistake['paragraph'] + "\n\nMistakes:\n\n"
+			words = ""
+			for word in mistake['mistakes']:
+				words = words + word + ", "
+
+			words = words[:-2]
+			description += words + "\n"
+		
+		stats = discord.Embed(
+			title = member.name + "'s Sesion de Lectura Stats",
+			description = description,
+			colour = discord.Colour.red()
+		)
+
+		await client.say(embed=stats)
+
+	else:
+		await client.say("There are not mistakes available.")
 
 @client.command(pass_context=True)
 async def nickname(ctx):
